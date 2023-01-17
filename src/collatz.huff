@@ -1,0 +1,30 @@
+ 
+#define macro ODD_VALUE() = takes(1) returns(0){
+    0x03                //[3,n]
+    mul                 //result
+    0x01                //[1,result]
+    add                 //[new_result]
+
+    0x00 mstore         //[] store value in mem @ 0x00
+    0x20 0x00 return    // return the result 
+
+}
+
+// MAIN
+#define macro MAIN() = takes(0) returns(0) {
+    0x04            //[0x04]
+    calldataload    //[value n]
+    0x02            //[0x02, n]
+    DUP2            //[n,0x02,n]
+    mod             //[result,n]
+    oddValue jumpi  //if result is non 0, jump to odd jump: [n]
+    0x01            //[1,n]
+    shr             //[n/2]
+    0x00 mstore 
+    0x20 0x00 return
+
+    //dispatch 
+    oddValue:
+        ODD_VALUE()
+
+}
