@@ -1,0 +1,26 @@
+//External function macros 
+// MAIN
+#define macro MAIN() = takes(0) returns(0) {           
+    0x20            // [32]
+    0x00            // [0,32]    // push 0 and 2 to the bottom of the stack to use for return opcode
+    0x04            // [4,0,32]  // used in calldata load to skip the function selector
+    calldataload    // [n,0,32] // n is calldata
+    0x02            // [2,n,0,32] // add 2 to the stack so we can check if n is even
+    dup2            // [n,2,n,0,32] // duplicate the 2nd value on the stack
+    mod             // [result,n,0,32] // result = n % 2 which is either 0 or 1
+    0x15            // [15,result,n,0,32] // 0x15 is the jumpdest if odd
+    jumpi           // [n,0,32] 
+    0x01            // [1,n,0,32]
+    shr             // [n/2,0,32]  // shift right by 1 bit divides by 2 
+    0x00            // [0,n/2,0,32]
+    mstore          // [0,32]
+    return          // []
+    jumpdest        // IF ODD, we JUMP HERE
+    0x03            //[03,n,0,32]
+    mul             //[3n,0,32]  // multiplies the top 2 values on the stack
+    0x01            //[1,3n,0,32] // add 1 to the stack
+    add             // [1 + 3n,0,32] // add the top 2 values on the stack
+    0x00            // [0, 1 + 3n, 0, 32] // 
+    mstore          // 0, 32   // mstore takes the top 2 values as the offset and value to store at that offset
+    return          // return takes the offset and the size of the return value
+}
